@@ -1,0 +1,4 @@
+.friends card:hover {
+    cursor: pointer;
+    margin-bottom: 0 !important;
+}
