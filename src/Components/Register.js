@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 // import './Login.css'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Navbar from './Navbar';
 import * as yup from 'yup';
 import Form from 'react-formal';
+import { REGISTER_USER_MUTATION, register } from "../services/auth";
+import { useMutation } from "@apollo/react-hooks";
+
 const regex = /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
 const modelSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -33,6 +36,12 @@ export default () => {
     confirmPassword: '',
   };
   const [model, setModel] = useState(initialState);
+  // const [register, { data, client }] = useMutation(REGISTER_USER_MUTATION)
+  const history = useHistory()
+  const submit = async () => {
+    const res = await register(model);
+    history.push('login');
+  }
   return (
     <>
       <Navbar />
@@ -40,7 +49,7 @@ export default () => {
         <div className="card">
           <div className="card-header">{/* <h2>Sign Up</h2> */}</div>
           <div className="card-body">
-            <Form className="w-100" schema={modelSchema} value={model} onSubmit={e => console.log(e)} onChange={model => setModel(model)}>
+            <Form className="w-100" schema={modelSchema} value={model} onSubmit={e => submit()} onChange={model => setModel(model)}>
               <fieldset className="w-100">
                 <legend className="text-center">Signup</legend>
 
@@ -58,7 +67,10 @@ export default () => {
 
                 <Form.Field className="form-control mt-3 w-100" name="confirmPassword" placeholder="Re-enter password" type="password" />
                 <Form.Message className="pl-1 text-danger" for="confirmPassword" />
-                <Form.Submit className="btn btn-primary mt-3 w-100" type="submit">
+
+                <Form.Field className="form-control mt-3 w-100" name="dob" placeholder="Re-enter password" type="date" />
+                <Form.Message className="pl-1 text-danger" for="dob" />
+                <Form.Submit className="btn btn-primary mt-3 w-100" type="submit" >
                   Submit
                 </Form.Submit>
               </fieldset>

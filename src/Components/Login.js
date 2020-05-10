@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import './Login.css';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Navbar from './Navbar';
 import * as yup from 'yup';
 import Form from 'react-formal';
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { LOGIN_MUTATION, GET_USER_QUERY, login } from '../services/auth';
 const modelSchema = yup.object({
-  email: yup
-    .string()
-    .email('Invalid email ID')
-    .required('Email ID is required'),
+  email: yup.string().email('Invalid email ID').required('Email ID is required'),
   password: yup.string().min(8),
 });
 export default () => {
@@ -17,6 +16,24 @@ export default () => {
     password: '',
   };
   const [model, setModel] = useState(initialState);
+  const { loading, client, fetchMore } = useQuery(GET_USER_QUERY);
+  // const [login, { data }] = useMutation(LOGIN_MUTATION);
+  const history = useHistory();
+  const submit = async () => {
+    const resp = await login(model);
+    resp.__typename = 'loggedInUser'
+    client.writeData({
+      data: {
+        loggedInUser: resp,
+      },
+    });
+    // console.log({userResp})
+    if (resp) {
+      history.push('/feed');
+    } else {
+      alert('Invalid credentials. Please try again!');
+    }
+  };
   return (
     <>
       <Navbar />
@@ -24,7 +41,7 @@ export default () => {
         <div className="card">
           <div className="card-header">{/* <h2>Login</h2> */}</div>
           <div className="card-body">
-            <Form className="w-100" schema={modelSchema} value={model} onSubmit={e => console.log(e)} onChange={model => setModel(model)}>
+            <Form className="w-100" schema={modelSchema} value={model} onSubmit={(e) => submit()} onChange={(model) => setModel(model)}>
               <fieldset className="w-100">
                 <legend className="text-center">Login</legend>
 
