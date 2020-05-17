@@ -66,19 +66,19 @@ export default () => {
             <div className="card">
               <div className="card-header">
                 <img src={avatar} className="img-thumbnail mr-2"></img>
-                {p.text}
+                <b>{p.CreatedBy.name}</b> {p.text}
               </div>
               <div className="card-body">
-                <img className="post-img" src={image}></img>
+                {/* <img className="post-img" src={image}></img> */}
                 {p.likes.filter(l => l.isActive).length} Likes
                 {p.likes.find((like) => {
                   return like.isActive && like.LikedById === loggedInUser.id;
                 }) ? (
-                  <button class="btn btn-danger" type="submit" onClick={(_) => unlike({ postId: p.id })}>
+                  <button class="btn btn-success" type="submit" onClick={(_) => unlike({ postId: p.id })}>
                     Unlike
                   </button>
                 ) : (
-                  <button class="btn btn-primary" type="submit" onClick={(_) => like({ postId: p.id })}>
+                  <button class="btn btn-outline-success" type="submit" onClick={(_) => like({ postId: p.id })}>
                     Like
                   </button>
                 )}

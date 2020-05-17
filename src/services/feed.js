@@ -13,6 +13,10 @@ const GET_FEED_QUERY = gql`
       likes {
         ...likeFragment
       }
+      CreatedBy {
+        id
+        name
+      }
     }
   }
   ${Like.fragment.like}
