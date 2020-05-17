@@ -9,6 +9,7 @@ const User = {
         email
         mobile
         dob
+        createdAt
       }
     `,
   },
@@ -35,43 +36,67 @@ const LOGIN_MUTATION = gql`
   ${User.fragments.user}
 `;
 const GET_USER_QUERY = gql`
-  query getUser($email: String!) {
-    user(email: $email) {
-      id
-      name
-      mobile
-      dob
+  query getUser($text: String!) {
+    users(text: $text) {
+      FriendRequestsSent {
+        isActive
+        isRejected
+        isAccepted
+        RequestedById
+        RequestedToId
+        RequestedBy {
+          id
+        }
+        RequestedTo {
+          id
+        }
+      }
+      FriendRequestsReceived {
+        isActive
+        isRejected
+        isAccepted
+        RequestedById
+        RequestedToId
+        RequestedBy {
+          id
+        }
+        RequestedTo {
+          id
+        }
+      }
+      ...UserFragment
     }
   }
+  ${User.fragments.user}
 `;
 
-const register = async data => {
+const register = async (data) => {
   const resp = await fetch('register', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data)
-  })
-  if(resp.ok){
+    body: JSON.stringify(data),
+  });
+  if (resp.ok) {
     const data = await resp.json();
     return data;
   }
   throw await resp.json();
-}
+};
 
-const login = async data => {
+const login = async (data) => {
   const resp = await fetch('login', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data)
-  })
-  if(resp.ok){
+    body: JSON.stringify(data),
+  });
+  if (resp.ok) {
     const data = await resp.json();
     return data;
   }
   throw await resp.json();
-}
+};
 export { REGISTER_USER_MUTATION, LOGIN_MUTATION, GET_USER_QUERY, User, register, login };
