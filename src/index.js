@@ -18,12 +18,6 @@ const client = new ApolloClient({
   resolvers: {
     Query: {
       loggedInUser: (_root, variables, { cache, getCacheKey }) => {
-        const fragment = gql`
-          fragment user on loggedInUser {
-            id
-          }
-        `;
-        const id = getCacheKey({ id: 1 })
         const data = cache.readQuery(GET_LOGGED_IN_USER)
         return data;
       }

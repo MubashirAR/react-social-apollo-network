@@ -5,7 +5,13 @@ import './Friends.css';
 import Navbar from './Navbar';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { GET_LOGGED_IN_USER } from '../services/localCache/user';
-import { GET_FRIENDS_QUERY, REMOVE_FRIEND_MUTATION, ACCEPT_FRIEND_MUTATION, REJECT_FRIEND_MUTATION, ADD_FRIEND_MUTATION } from '../services/friend';
+import {
+  GET_FRIENDS_QUERY,
+  REMOVE_FRIEND_MUTATION,
+  ACCEPT_FRIEND_MUTATION,
+  REJECT_FRIEND_MUTATION,
+  ADD_FRIEND_MUTATION,
+} from '../services/friend';
 import * as yup from 'yup';
 import Form from 'react-formal';
 import { GET_USER_QUERY } from '../services/auth';
@@ -61,6 +67,40 @@ export default () => {
   const submit = () => {
     search(model);
   };
+  const friendCard = (friend) => (
+    <div className="card">
+      <div className="card-header">
+        <div>
+          <img src={avatar} className="img-thumbnail mr-2"></img>
+          {friend.RequestedById === loggedInUser.id ? friend.RequestedTo.name : friend.RequestedBy.name}
+        </div>
+        {friend.isAccepted ? (
+          <button
+            className="btn btn-danger ml-5"
+            onClick={(_) => removeFriendHandler({ RequestedById: friend.RequestedById, RequestedToId: friend.RequestedToId })}
+          >
+            Remove Friend
+          </button>
+        ) : (
+          <div>
+            <button
+              className="btn btn-success ml-5"
+              onClick={(_) => acceptFriendHandler({ requestedById: friend.RequestedById, requestedToId: friend.RequestedToId })}
+            >
+              Accept
+            </button>
+            <button
+              className="btn btn-danger ml-5"
+              onClick={(_) => rejectFriendHandler({ requestedById: friend.RequestedById, requestedToId: friend.RequestedToId })}
+            >
+              Reject
+            </button>
+          </div>
+        )}
+      </div>
+      {/* <div className="card-body"></div> */}
+    </div>
+  );
   return (
     <>
       <Navbar loggedIn />
@@ -119,15 +159,17 @@ export default () => {
                       ) : user.isFriend ? (
                         <button
                           className="btn btn-danger ml-5"
-                          onClick={(_) => removeFriendHandler({ requestedById: user.friendRequest.RequestedById, requestedToId: user.friendRequest.RequestedToId })}
+                          onClick={(_) =>
+                            removeFriendHandler({
+                              requestedById: user.friendRequest.RequestedById,
+                              requestedToId: user.friendRequest.RequestedToId,
+                            })
+                          }
                         >
                           Remove Friend
                         </button>
                       ) : user.isRequestedByMe ? (
-                        <button
-                          className="btn btn-secondary ml-5"
-                          disabled
-                        >
+                        <button className="btn btn-secondary ml-5" disabled>
                           Requested
                         </button>
                       ) : (
@@ -147,25 +189,13 @@ export default () => {
           <div className="jumbotron">
             {friendsData &&
               friendsData.friends &&
+              friendsData.friends.filter((f) => f.isActive && f.isAccepted).map((friend) => friendCard(friend))}
+            {friendsData &&
+              friendsData.friends &&
               friendsData.friends
-                .filter((f) => f.isActive && f.isAccepted)
-                .map((friend) => (
-                  <div className="card">
-                    <div className="card-header">
-                      <div>
-                        <img src={avatar} className="img-thumbnail mr-2"></img>
-                        {friend.RequestedById === loggedInUser.id ? friend.RequestedTo.name : friend.RequestedBy.name}
-                      </div>
-                      <button
-                        className="btn btn-danger ml-5"
-                        onClick={(_) => removeFriendHandler({ RequestedById: friend.RequestedById, RequestedToId: friend.RequestedToId })}
-                      >
-                        Remove Friend
-                      </button>
-                    </div>
-                    {/* <div className="card-body"></div> */}
-                  </div>
-                ))}
+                .filter((f) => {
+                  return f.isActive && !f.isAccepted && !f.isRejected && f.RequestedToId === loggedInUser.id})
+                .map((friend) => friendCard(friend))}
           </div>
         </div>
       </div>
